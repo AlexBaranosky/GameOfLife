@@ -2,32 +2,48 @@
   (:use [retreat1.core])
   (:use [midje.sweet]))
 
-(defn neighbors [points]
+(defn- neighbors [people]
   (apply disj
     (set
-      (for [p points
+      (for [p people
             i (range (dec (:x p)) (+ 2 (:x p)))
             j (range (dec (:y p)) (+ 2 (:y p)))]
         {:x i :y j}))
-    points))
+    people))
 
-(defn evolution-of-lives [points]
-  (set (keep (fn [p]
-               (if (#{2 3} (count (neighbors [p]))) p)) 
-         points)))
+(defn- evolution-of-lives [people]
+  (set (for [p people
+             :when (#{2 3} (count (neighbors #{p})))]
+         p)))
 
-(defn newborns [points]
-  (let [unborn (apply disj (neighbors points) points)]
+(defn- newborns [people]
+  (let [unborn (apply disj (neighbors 
+                             
+                             people) people)]
     (set
-      (keep (fn [ub]
-            
-              (if (= 3 (count (neighbors [ub])))
-                ub))
-        unborn))))
+      (for [ub unborn
+            :when (= 3 (count (neighbors #{ub})))]
+        ub))))
 
-(defn next-world [points]
-  (set (concat (evolution-of-lives points) 
-               (newborns points))))
+(defn next-world [people]
+  (set (concat (evolution-of-lives people) 
+               (newborns people))))
+
+(fact
+  (evolution-of-lives #{ {:x 1 :y 1} {:x 1 :y 2}  {:x 1 :y 3} }) => #{{:x 1 :y 2}}
+
+  (evolution-of-lives #{            {:x 0 :y 2}
+                        {:x 1 :y 1} {:x 1 :y 2}  {:x 1 :y 3} }) => #{{:x 1 :y 2} })
+
+(fact
+  (next-world #{             {:x 0 :y 1} 
+                 {:x 1 :y 0}             {:x 1 :y 2}
+                }) => #{ {:x 1 :y 1} })
+
+(fact
+  (next-world #{ {:x 1 :y 1} {:x 1 :y 2}  {:x 1 :y 3} }) => #{{:x 1 :y 2}}
+  (next-world #{            {:x 0 :y 2}
+                {:x 1 :y 1} {:x 1 :y 2}  {:x 1 :y 3} }) => #{{:x 1 :y 2} })
 
 (fact
   (next-world #{ {:x 1 :y 1} {:x 1 :y 2} }) => #{})
