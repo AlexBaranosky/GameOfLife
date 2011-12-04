@@ -1,41 +1,46 @@
 (ns retreat1.test.core
   (:use [retreat1.core])
+  (:use [clojure.set])
   (:use [midje.sweet]))
 
-(defn- neighbors [people]
-  (apply disj
+(defn neighbors [& people]
+  (difference
     (set
-      (for [p people
-            i (range (dec (:x p)) (+ 2 (:x p)))
-            j (range (dec (:y p)) (+ 2 (:y p)))]
+      (for [{:keys [x y]} people
+            i (range (dec x) (+ 2 x))
+            j (range (dec y) (+ 2 y))]
         {:x i :y j}))
     people))
 
-(defn- evolution-of-lives [people]
+(defn survivors [people]
   (set (for [p people
-             :when (#{2 3} (count (neighbors #{p})))]
+             :when (#{2 3} (count (neighbors p)))]
          p)))
 
-(defn- newborns [people]
-  (let [unborn (apply disj (neighbors 
-                             
-                             people) people)]
+(defn newborns [people]
+  (let [unborn (apply neighbors people)]
     (set
       (for [ub unborn
-            :when (= 3 (count (neighbors #{ub})))]
+            :when (= 3 (count (neighbors ub)))]
         ub))))
 
 (defn next-world [people]
-  (set (concat (evolution-of-lives people) 
-               (newborns people))))
+  (union (survivors people) 
+         (newborns people)))
 
-(fact
-  (evolution-of-lives #{ {:x 1 :y 1} {:x 1 :y 2}  {:x 1 :y 3} }) => #{{:x 1 :y 2}}
+(doseq [?items (map #(repeat % :x) [2 3])]
+  (fact "stupid test of internal function"
+    (survivors #{  {:x 1 :y 2} }) => #{{:x 1 :y 2}}
+    (provided
+      (neighbors anything) =>  ?items)))
 
-  (evolution-of-lives #{            {:x 0 :y 2}
-                        {:x 1 :y 1} {:x 1 :y 2}  {:x 1 :y 3} }) => #{{:x 1 :y 2} })
+(doseq [?items (map #(repeat % :x) [0 1 4 5 6 7 8])]
+  (fact "stupid test of internal function"
+    (survivors #{  {:x 1 :y 2} }) => #{}
+    (provided
+      (neighbors anything) =>  ?items)))
 
-(fact
+(fact "newborn occurs when surrounded by 3 people"
   (next-world #{             {:x 0 :y 1} 
                  {:x 1 :y 0}             {:x 1 :y 2}
                 }) => #{ {:x 1 :y 1} })
@@ -49,7 +54,7 @@
   (next-world #{ {:x 1 :y 1} {:x 1 :y 2} }) => #{})
 
 (fact
-  (neighbors #{ {:x 1 :y 1} {:x 1 :y 2} }) => #{ {:x 0 :y 0} {:x 0 :y 1} {:x 0 :y 2} {:x 0 :y 3}
+  (neighbors {:x 1 :y 1} {:x 1 :y 2}) => #{ {:x 0 :y 0} {:x 0 :y 1} {:x 0 :y 2} {:x 0 :y 3}
                                                  {:x 1 :y 0}                         {:x 1 :y 3}
                                                  {:x 2 :y 0} {:x 2 :y 1} {:x 2 :y 2} {:x 2 :y 3} })
 
