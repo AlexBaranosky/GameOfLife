@@ -12,16 +12,11 @@
     (difference neighbors+people people)))
 
 (defn survivors [people]
-  (set (for [p people
-             :when (#{2 3} (count (neighbors p)))]
-         p)))
+  (select (fn [p] (#{2 3} (count (neighbors p)))) people))
 
 (defn newborns [people]
   (let [unborn (apply neighbors people)]
-    (set
-      (for [ub unborn
-            :when (= 3 (count (neighbors ub)))]
-        ub))))
+    (select (fn [ub] (= 3 (count (neighbors ub)))) unborn)))
 
 (defn next-world [people]
   (union (survivors people)

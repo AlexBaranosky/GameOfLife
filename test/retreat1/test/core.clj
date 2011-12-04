@@ -16,9 +16,22 @@
       (neighbors anything) =>  ?items)))
 
 (fact "newborn occurs when surrounded by 3 people"
+  (newborns #{             {:x 0 :y 1} 
+               {:x 1 :y 0}             {:x 1 :y 2}
+              }) => #{ {:x 1 :y 1} }
+  (provided
+    (neighbors {:x 1 :y 1}) => #{             {:x 0 :y 1} 
+               {:x 1 :y 0}             {:x 1 :y 2}
+              } ))
+
+(fact "newborn occurs when surrounded by 3 people"
   (next-world #{             {:x 0 :y 1} 
                  {:x 1 :y 0}             {:x 1 :y 2}
                 }) => #{ {:x 1 :y 1} })
+
+(fact
+  (neighbors {:x 0 :y 1} {:x 1 :y 0} {:x 1 :y 2}) 
+     => [])
 
 (fact
   (next-world #{ {:x 1 :y 1} {:x 1 :y 2}  {:x 1 :y 3} }) => #{{:x 1 :y 2}}
