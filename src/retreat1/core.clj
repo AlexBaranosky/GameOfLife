@@ -3,20 +3,17 @@
   (:use [clojure.set])
   (:use [midje.sweet]))
 
-(defn unpopulated-neighboring-spots [& people]
-  (let [neighbors+people (set
-                           (for [{:keys [x y]} people
-                                 i (range (dec x) (+ 2 x))
-                                 j (range (dec y) (+ 2 y))]
-                             {:x i :y j}))]
-    (difference neighbors+people people)))
+(letfn [(surrounding-spots [{:keys [x y]}]
+          (for [i (range (dec x) (+ 2 x))
+                j (range (dec y) (+ 2 y))
+                :when (not= [i j] [x y])]
+            {:x i :y j} ))]
 
-(defn neighbors [{:keys [x y]} all-people]
-  (intersection all-people (set 
-                             (for [i (range (dec x) (+ 2 x))
-                                   j (range (dec y) (+ 2 y))
-                                   :when (not= [i j] [x y])]
-                               {:x i :y j} ))))
+  (defn unpopulated-neighboring-spots [& people]
+    (difference (set (mapcat surrounding-spots people)) people))
+  
+  (defn neighbors [person all-people]
+    (intersection all-people (set (surrounding-spots person)))))
 
 (defn survivors [people]
   (select (fn [p] (#{2 3} (count (neighbors p people)))) people))
