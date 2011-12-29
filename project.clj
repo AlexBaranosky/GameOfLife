@@ -1,6 +1,4 @@
 (defproject retreat1 "1.0.0"
-  :description "Game of Life, 2011"
-  :dependencies [[org.clojure/clojure "1.3.0"]
-                 [midje "1.3-alpha5"]
-                 [seesaw "1.2.1"]]
-  :main retreat1.gui)
+  :description "Game of Life, Set-based in Clojure 2011"       
+  :dev-dependencies [[midje "1.3.0"]] 
+  :dependencies [[org.clojure/clojure "1.3.0"]])
