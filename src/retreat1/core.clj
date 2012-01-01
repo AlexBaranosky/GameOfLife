@@ -9,7 +9,7 @@
                 :when (not= [i j] [x y])]
             {:x i :y j} ))]
 
-  (defn unpopulated-neighboring-spots [& people]
+  (defn unpopulated-neighboring-spots [people]
     (difference (set (mapcat surrounding-spots people)) people))
   
   (defn neighbors [person all-people]
@@ -19,9 +19,7 @@
   (select (fn [p] (#{2 3} (count (neighbors p people)))) people))
 
 (defn newborns [people]
-  (let [unborn (apply unpopulated-neighboring-spots people)]
-    (select (fn [ub] (= 3 (count (neighbors ub people)))) unborn)))
+  (->> people unpopulated-neighboring-spots (select #(= 3 (count (neighbors % people))))))
 
 (defn next-world [people]
-  (union (survivors people) (newborns people)))
- 
+  (union (survivors people) (newborns people)))   
