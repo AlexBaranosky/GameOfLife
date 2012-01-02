@@ -1,7 +1,5 @@
 (ns retreat1.core
-  (:use [retreat1.core])
-  (:use [clojure.set])
-  (:use [midje.sweet]))
+  (:use [clojure.set]))
 
 (letfn [(surrounding-spots [{:keys [x y]}]
           (for [i (range (dec x) (+ 2 x))
